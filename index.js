@@ -123,11 +123,15 @@ const outputOptions = {
     outro: (args.dll || !toFile) ? dllWrapper[1] : '',
 };
 
+const createComponentFile = filePath => {
+    let name = filePath.slice(filePath.lastIndexOf('/') + 1, filePath.lastIndexOf('.'))
+    fs.writeFileSync(filePath, component.split('//name//').join(name));
+};
+
 async function build() {
     if(!toFile){
         if (!fs.existsSync(fromFile)){
-            let name = fromFile.slice(fromFile.lastIndexOf('/') + 1, fromFile.lastIndexOf('.'))
-            fs.writeFileSync(fromFile, component.split('//name//').join(name));
+            createComponentFile(fromFile);
         }
         // start a live-reloading dev server
         devServer = DevServer({
@@ -141,9 +145,22 @@ async function build() {
         });
         watcher.on('event', async event => {
             if(event.code === 'ERROR'){
-                console.log(event.error);
+                if(event.error && (event.error.code === 'UNRESOLVED_IMPORT')){
+                    let error = event.error.toString();
+                    let filePath = error.split(/[\'\"]/)[1];
+                    if(filePath && (filePath.indexOf('.') === 0) && (filePath.indexOf('.jsx') === filePath.length - 4)){
+                        let baseFile = event.error.watchFiles && event.error.watchFiles[0];
+                        if(baseFile){
+                            let baseDir = baseFile.substr(0, baseFile.lastIndexOf('/'));
+                            createComponentFile(path.resolve(baseDir, filePath));
+                            return fs.appendFileSync(baseFile, '\n')
+                        }
+                    }
+                }
+                console.log();
+                console.log(event.error && event.error.toString() || event);
             }
-            if(event.code === 'BUNDLE_END'){
+            else if(event.code === 'BUNDLE_END'){
                 const { output } = await event.result.generate(outputOptions);
                 utils.logBuild();
                 devServer.reload(output[0].code);
@@ -180,6 +197,8 @@ const onExit = (type, e) => {
 });
 
 build().catch(err => {
+    
+    console.log(1)
     console.log(err)
 });
 
