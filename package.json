@@ -1,6 +1,6 @@
 {
-  "name": "@netribe/jsx-bundle",
-  "version": "1.0.0",
+  "name": "jsx-bundle",
+  "version": "1.0.1",
   "description": "A pre-configured global bundler for JSX",
   "main": "index.js",
   "scripts": {
