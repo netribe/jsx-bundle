@@ -28,7 +28,7 @@ module.exports = function(config){
             </style>
         </head>
         <body>
-            <div id="app">123</div>
+            <div id="app"></div>
             <script src="dlls/react.dll.js"></script>
             <script src="dlls/react-dom.dll.js"></script>
             <script src="build.js"></script>

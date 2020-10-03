@@ -81,7 +81,11 @@ export default class //name// extends React.Component{
     componentWillUnmount(){}
 
     render(){
-        return <div>//name//</div>
+        return (
+            <div>
+                //name//
+            </div>
+        );
     }
 }
 `;
